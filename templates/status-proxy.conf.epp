@@ -1,0 +1,36 @@
+<%- | String  $certname,
+      Integer $port
+| -%>
+# This file should be installed to:
+# /etc/puppetlabs/puppetserver/conf.d/status-proxy.conf
+#
+# The configuration requires the following line to be present in
+# /etc/puppetlabs/puppetserver/bootstrap.cfg:
+#
+#    puppetlabs.trapperkeeper.services.status.status-proxy-service/status-proxy-service
+#
+# Please make sure this line is present in the bootstrap.cfg before creating this file.
+#
+webserver: {
+  status-proxy: {
+    host: "0.0.0.0"
+    port: <%= $port %>
+  }
+}
+
+status-proxy: {
+  proxy-target-url: "https://127.0.0.1:8140/status"
+  ssl-opts: {
+    ssl-cert: "/etc/puppetlabs/puppet/ssl/certs/<%= $clientcert %>.pem"
+    ssl-key: "/etc/puppetlabs/puppet/ssl/private_keys/<%= $clientcert %>.pem"
+    ssl-ca-cert: /etc/puppetlabs/puppet/ssl/certs/ca.pem
+  }
+}
+
+web-router-service: {
+  "puppetlabs.trapperkeeper.services.status.status-proxy-service/status-proxy-service": {
+    route: /status
+    server: status-proxy
+  }
+}
+
